@@ -50,6 +50,14 @@ func CopyFile(source string, dest string) error {
 		}
 	}
 
+	// Handle named pipe
+	if modeType == os.ModeNamedPipe {
+		mode := uint32(si.Mode() & os.ModePerm)
+		if err := syscall.Mkfifo(dest, mode); err != nil {
+			return err
+		}
+	}
+
 	// Handle regular files
 	if si.Mode().IsRegular() {
 		err = copyInternal(source, dest)
